@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# MLFlow documentation build configuration file, created by
+# MLflow documentation build configuration file, created by
 # cookiecutter pipproject
 #
 # This file is execfile()d with the current directory set to its
@@ -34,6 +34,7 @@ from languagesections import *
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx_click.ext',
 ]
@@ -54,7 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'MLflow'
-copyright = 'Databricks 2019. All rights reserved'
+copyright = 'Databricks 2020. All rights reserved'
 author = 'Databricks'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -229,16 +230,16 @@ htmlhelp_basename = 'MLflowdoc'
 
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+# 'papersize': 'letterpaper',
 
 # The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+# 'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
-#'preamble': '',
+# 'preamble': '',
 
 # Latex figure (float) alignment
-#'figure_align': 'htbp',
+# 'figure_align': 'htbp',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -248,6 +249,10 @@ latex_documents = [
     (master_doc, 'MLflow.tex', 'MLflow Documentation',
      'Databricks', 'manual'),
 ]
+
+# Mock torch & fastai imports as per suggestion in
+# https://github.com/sphinx-doc/sphinx/issues/6521#issuecomment-505765893
+autodoc_mock_imports = ["torch", "fastai"]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -311,6 +316,9 @@ nitpicky = True
 nitpick_ignore = [
     # Ignore "parent class reference not found" errors for subclasses of ``object``
     ('py:class', 'object'),
+    ('py:class', 'enum.Enum'),
+    ('py:class', 'bytes'),
+    ('py:class', 'bytearray')
 ]
 
 linkcheck_ignore = [

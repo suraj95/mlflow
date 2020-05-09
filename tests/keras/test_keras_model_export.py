@@ -1,7 +1,5 @@
 # pep8: disable=E501
 
-from __future__ import print_function
-
 import h5py
 import os
 import json
@@ -32,7 +30,6 @@ from tests.helper_functions import score_model_in_sagemaker_docker_container
 from tests.helper_functions import set_boto_credentials  # pylint: disable=unused-import
 from tests.helper_functions import mock_s3_bucket  # pylint: disable=unused-import
 from tests.pyfunc.test_spark import score_model_as_udf
-from tests.projects.utils import tracking_uri_mock  # pylint: disable=unused-import
 
 
 @pytest.fixture(scope='module')
@@ -151,11 +148,13 @@ def test_that_keras_module_arg_works(model_path):
         def load_model(file, **kwars):
             return MyModel(file.get("x").value)
 
+    original_import = importlib.import_module
+
     def _import_module(name, **kwargs):
         if name.startswith(FakeKerasModule.__name__):
             return FakeKerasModule
         else:
-            return importlib.import_module(name, **kwargs)
+            return original_import(name, **kwargs)
 
     with mock.patch("importlib.import_module") as import_module_mock:
         import_module_mock.side_effect = _import_module
@@ -282,7 +281,7 @@ def test_model_load_from_remote_uri_succeeds(model, model_path, mock_s3_bucket, 
 
 
 @pytest.mark.large
-def test_model_log(tracking_uri_mock, model, data, predicted):  # pylint: disable=unused-argument
+def test_model_log(model, data, predicted):
     x, _ = data
     # should_start_run tests whether or not calling log_model() automatically starts a run.
     for should_start_run in [False, True]:
@@ -306,7 +305,7 @@ def test_model_log(tracking_uri_mock, model, data, predicted):  # pylint: disabl
             mlflow.end_run()
 
 
-def test_log_model_calls_register_model(tracking_uri_mock, model):
+def test_log_model_calls_register_model(model):
     artifact_path = "model"
     register_model_patch = mock.patch("mlflow.register_model")
     with mlflow.start_run(), register_model_patch:
@@ -317,7 +316,7 @@ def test_log_model_calls_register_model(tracking_uri_mock, model):
         mlflow.register_model.assert_called_once_with(model_uri, "AdsModel1")
 
 
-def test_log_model_no_registered_model_name(tracking_uri_mock, model):
+def test_log_model_no_registered_model_name(model):
     artifact_path = "model"
     register_model_patch = mock.patch("mlflow.register_model")
     with mlflow.start_run(), register_model_patch:
